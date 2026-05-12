@@ -550,11 +550,11 @@ def create_demo_data():
         ])
         db.session.commit()
 
-import os  # добавьте в начало файла, если ещё не импортирован
+# Создание таблиц при импорте (сработает и при gunicorn)
+with app.app_context():
+    db.create_all()
+    create_demo_data()
 
 if __name__ == '__main__':
-    with app.app_context():
-        db.create_all()
-        create_demo_data()
     port = int(os.environ.get('PORT', 5000))
     app.run(host='0.0.0.0', port=port)
