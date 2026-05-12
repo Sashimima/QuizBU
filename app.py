@@ -555,6 +555,9 @@ def create_demo_data():
 with app.app_context():
     db.create_all()
     create_demo_data()
+    @app.route('/health')
+def health():
+    return 'OK', 200
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
