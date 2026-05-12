@@ -75,10 +75,10 @@
                         </div>
                         <div class="d-grid gap-2">
                             <a href="/quiz/{{ quiz.id }}" class="btn btn-primary btn-sm">🚀 Пройти викторину</a>
-                            {% if session['username'] == quiz.creator %}
-                            <a href="/delete/{{ quiz.id }}" class="btn btn-danger btn-sm" 
-                               onclick="return confirm('Удалить эту викторину?')">🗑 Удалить</a>
-                            {% endif %}
+                            {% if session.get('user_id') == quiz.creator_id %}
+    <a href="/delete/{{ quiz.id }}" class="btn btn-danger btn-sm" 
+       onclick="return confirm('Удалить эту викторину?')">🗑 Удалить</a>
+{% endif %}
                         </div>
                     </div>
                 </div>
