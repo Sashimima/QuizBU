@@ -17,6 +17,7 @@ BANNED_WORDS = (
 )
 
 app = Flask(__name__)
+app.config['DEBUG'] = True
 app.config['SECRET_KEY'] = 'quiz_course_2026_secure_key'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///quiz.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
