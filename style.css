@@ -1,0 +1,534 @@
+:root {
+    --bg-body: #f5f5f2;
+    --bg-surface: #ffffff;
+    --text-main: #000000;      /* ⬛ Чёрный текст */
+    --text-muted: #444444;     /* Тёмно-серый для подсказок */
+    --border: #dcded7;
+    --primary: #4a4e3d;
+    --primary-hover: #36392c;
+    --danger: #a94442;
+    --shadow: rgba(74, 78, 61, 0.12);
+}
+
+/* === Тёмная тема === */
+[data-theme="dark"] {
+    --bg-body: #121410;
+    --bg-surface: #1e201a;
+    --text-main: #ffffff;      /* ⬜ Белый текст */
+    --text-muted: #c8ccc0;     /* Светло-серый для подсказок */
+    --border: #33372e;
+    --primary: #5c624c;
+    --primary-hover: #4a4e3d;
+    --danger: #c25452;
+    --shadow: rgba(0, 0, 0, 0.35);
+}
+
+/* Гарантируем применение цвета ко всем текстовым элементам */
+body, h1, h2, h3, h4, h5, h6, p, span, a, label, li, td, th, .card-title, .card-text {
+    color: var(--text-main);
+}
+.text-muted {
+    color: var(--text-muted) !important;
+}
+
+/* Базовые стили */
+/* Глобальная раскладка: футер всегда внизу */
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh; /* Минимальная высота = высота экрана */
+    background-color: var(--bg-body);
+    color: var(--text-main);
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+main {
+    flex: 1; /* Занимает всё доступное пространство, прижимая футер вниз */
+}
+
+/* 🔝 Навигация */
+.navbar {
+    background-color: var(--primary) !important;
+    transition: background-color 0.3s ease;
+}
+.navbar-brand, .nav-link { color: #ffffff !important; }
+
+/* 📦 Карточки и поверхности */
+.card, .question-block, .list-group-item {
+    background-color: var(--bg-surface);
+    border-color: var(--border);
+    color: var(--text-main);
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+.hover-shadow:hover {
+    box-shadow: 0 0.5rem 1rem var(--shadow) !important;
+}
+
+/* 🟢 Кнопки */
+.btn-primary, .btn-create, .btn-take, .btn-success {
+    background-color: var(--primary);
+    border-color: var(--primary);
+    color: #ffffff;
+}
+.btn-primary:hover, .btn-create:hover, .btn-take:hover, .btn-success:hover {
+    background-color: var(--primary-hover);
+    border-color: var(--primary-hover);
+    color: #ffffff;
+}
+.btn-outline-primary, .btn-secondary {
+    color: var(--primary);
+    border-color: var(--primary);
+    background-color: transparent;
+}
+.btn-outline-primary:hover, .btn-secondary:hover {
+    background-color: var(--primary);
+    border-color: var(--primary);
+    color: #ffffff;
+}
+.btn-danger, .btn-outline-danger {
+    color: var(--danger);
+    border-color: var(--danger);
+}
+.btn-danger:hover, .btn-outline-danger:hover {
+    background-color: var(--danger);
+    border-color: var(--danger);
+    color: #ffffff;
+}
+
+/* 🏷 Бейджи, прогресс, формы */
+.badge.bg-info {
+    background-color: var(--border) !important;
+    color: var(--text-main);
+}
+.progress-bar { background-color: var(--primary) !important; }
+
+.form-control, .form-select {
+    background-color: var(--bg-surface);
+    border-color: var(--border);
+    color: var(--text-main);
+}
+.form-control:focus, .form-select:focus {
+    background-color: var(--bg-surface);
+    border-color: var(--primary);
+    color: var(--text-main);
+    box-shadow: 0 0 0 0.2rem rgba(74, 78, 61, 0.25);
+}
+.form-check-input {
+    background-color: var(--bg-surface);
+    border-color: var(--border);
+}
+.form-check-input:checked {
+    background-color: var(--primary);
+    border-color: var(--primary);
+}
+.list-group-item-action:hover {
+    background-color: var(--border);
+}
+
+/* 🔗 Ссылки и футер */
+a { color: var(--primary); text-decoration: none; }
+a:hover { color: var(--primary-hover); text-decoration: underline; }
+footer {
+    background-color: var(--bg-surface);
+    border-top: 1px solid var(--border);
+    color: var(--text-muted);
+}
+
+/* 🌓 Кнопка переключения темы */
+.theme-toggle {
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.3);
+    color: #ffffff;
+    border-radius: 50%;
+    width: 38px;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 1.1rem;
+    transition: all 0.2s;
+}
+.theme-toggle:hover {
+    background: rgba(255,255,255,0.25);
+    border-color: #ffffff;
+    transform: scale(1.05);
+}
+/* 🔒 Гарантированная видимость текста в форме создания */
+.form-control, .form-select, textarea {
+    color: var(--text-main) !important;
+    background-color: var(--bg-surface) !important;
+    border-color: var(--border) !important;
+}
+.form-control::placeholder, textarea::placeholder {
+    color: var(--text-muted) !important;
+    opacity: 0.7;
+}
+.form-label, label, .card-body, .question-block {
+    color: var(--text-main) !important;
+}
+/* Убираем артефакты фокуса Bootstrap */
+.form-control:focus, .form-select:focus {
+    box-shadow: 0 0 0 0.2rem rgba(74, 78, 61, 0.25) !important;
+}
+/* 📊 Таблицы профиля */
+.profile-table {
+    background-color: #ffffff !important;
+    border: 2px solid var(--primary) !important;
+    border-radius: 10px;
+    overflow: hidden;
+    color: #000000 !important;
+}
+
+/* Шапка таблицы: фон в цвет рамок, текст белый для контраста */
+.profile-table thead th {
+    background-color: var(--primary) !important;
+    color: #ffffff !important;
+    border: none !important;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+}
+
+/* Ячейки тела таблицы */
+.profile-table tbody td {
+    color: #000000 !important;
+    border-top: 1px solid #e8e8e8 !important;
+    vertical-align: middle;
+}
+
+/* Бейджи и кнопки внутри таблицы */
+.profile-table .badge {
+    background-color: var(--primary) !important;
+    color: #ffffff !important;
+    font-weight: 500;
+}
+.profile-table .btn-outline-primary {
+    color: var(--primary) !important;
+    border-color: var(--primary) !important;
+}
+.profile-table .btn-outline-primary:hover {
+    background-color: var(--primary) !important;
+    color: #ffffff !important;
+    border-color: var(--primary) !important;
+}
+
+/* Полная защита от переопределения в тёмной теме */
+[data-theme="dark"] .profile-table {
+    background-color: #ffffff !important;
+}
+/* 🎮 Стиль викторинных карточек */
+.quiz-card { border-radius: 16px; border: 2px solid var(--primary); box-shadow: 0 4px 12px var(--shadow); }
+.option-btn { background: var(--bg-surface); border: 2px solid var(--border); transition: all 0.2s; }
+.option-btn:hover:not(.disabled) { border-color: var(--primary); transform: scale(1.02); }
+.option-btn.selected { background: var(--primary); color: #fff; border-color: var(--primary); }
+/* 📋 Вопросы в одну строку */
+.questions-horizontal {
+    display: flex;
+    flex-direction: row;
+    gap: 16px;
+    overflow-x: auto; /* прокрутка если не вмещаются */
+    padding-bottom: 10px;
+}
+
+.questions-horizontal .card {
+    flex: 0 0 300px; /* фиксированная ширина карточки */
+    min-width: 280px;
+    margin-bottom: 0 !important; /* убираем отступ снизу */
+}
+
+/* Адаптив: на мобильных — снова вертикально */
+@media (max-width: 992px) {
+    .questions-horizontal {
+        flex-direction: column;
+        overflow-x: visible;
+    }
+    .questions-horizontal .card {
+        flex: 1 1 100%;
+        min-width: 100%;
+    }
+}
+/* 📐 Ровные варианты ответов */
+.quiz-options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.quiz-option-label {
+    display: flex !important;
+    align-items: center !important;
+    padding: 14px 16px !important;
+    border: 1px solid var(--border) !important;
+    border-radius: 8px !important;
+    background: var(--bg-surface) !important;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.quiz-option-label:hover {
+    border-color: var(--primary) !important;
+    background: var(--bg-body) !important;
+}
+.quiz-option-label input[type="checkbox"],
+.quiz-option-label input[type="radio"] {
+    margin: 0 !important;
+    width: 1.25em;
+    height: 1.25em;
+    flex-shrink: 0;
+}
+/* 🌓 Поддержка тем через data-theme атрибут */
+[data-theme="dark"] {
+    --bg-body: #121410;
+    --bg-surface: #1e201a;
+    --text-main: #ffffff;
+    --text-muted: #c8ccc0;
+    --border: #33372e;
+    --primary: #5c624c;
+}
+[data-theme="light"] {
+    --bg-body: #f5f5f2;
+    --bg-surface: #ffffff;
+    --text-main: #000000;
+    --text-muted: #444444;
+    --border: #dcded7;
+    --primary: #4a4e3d;
+}
+
+/* Применение переменных */
+body {
+    background-color: var(--bg-body) !important;
+    color: var(--text-main) !important;
+}
+.card, .quiz-option-label {
+    background-color: var(--bg-surface) !important;
+    border-color: var(--border) !important;
+    color: var(--text-main) !important;
+}
+.navbar {
+    background-color: var(--primary) !important;
+}
+.theme-toggle {
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.3);
+    color: #fff;
+    border-radius: 6px;
+    padding: 4px 10px;
+    font-size: 0.9rem;
+}
+[data-theme="light"] .theme-toggle {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: #fff;
+}
+
+/* ⏱ Анимация таймера при <5 секундах */
+.badge.bg-primary {
+    transition: background-color 0.3s;
+}
+{% if time_left <= 5 %}
+/* Это будет работать только если time_left доступен в CSS, но для простоты оставим как есть */
+{% endif %}
+
+/* 📐 Варианты ответов */
+.quiz-options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.quiz-option-label {
+    display: flex !important;
+    align-items: center !important;
+    padding: 14px 16px !important;
+    border: 1px solid var(--border) !important;
+    border-radius: 8px !important;
+    background: var(--bg-surface) !important;
+    color: var(--text-main) !important;
+    cursor: pointer;
+}
+.quiz-option-label:hover {
+    border-color: var(--primary) !important;
+}
+/* 🌓 Темы */
+[data-theme="dark"] {
+    --bg-body: #121410; --bg-surface: #1e201a; --text-main: #ffffff;
+    --text-muted: #c8ccc0; --border: #33372e; --primary: #5c624c;
+}
+[data-theme="light"] {
+    --bg-body: #f5f5f2; --bg-surface: #ffffff; --text-main: #000000;
+    --text-muted: #444444; --border: #dcded7; --primary: #4a4e3d;
+}
+body { background-color: var(--bg-body) !important; color: var(--text-main) !important; }
+.card, .quiz-option-label { background-color: var(--bg-surface) !important; border-color: var(--border) !important; color: var(--text-main) !important; }
+.navbar { background-color: var(--primary) !important; }
+.theme-toggle { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); color: #fff; border-radius: 6px; padding: 4px 10px; }
+
+/* 📐 Варианты ответов */
+.quiz-options { display: flex; flex-direction: column; gap: 10px; }
+.quiz-option-label {
+    display: flex !important; align-items: center !important;
+    padding: 14px 16px !important; border: 1px solid var(--border) !important;
+    border-radius: 8px !important; cursor: pointer;
+}
+.quiz-option-label:hover { border-color: var(--primary) !important; }
+/* 📊 Анимация для популярных карточек */
+.card:has(.badge.bg-warning) {
+    border-left: 3px solid #f59e0b;
+}
+[data-theme="dark"] .card:has(.badge.bg-warning) {
+    border-left-color: #fbbf24;
+}
+.btn-danger {
+    background-color: #963333;
+    color: white;
+    padding: 6px 12px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.2s;
+    display: inline-block;
+    margin-left: 0px;
+}
+
+.btn-danger:hover {
+    background-color: #4e1b34;
+    transform: translateY(-2px);
+}
+/* ========== ТЕМА ТЁМНАЯ ========== */
+[data-theme="dark"] {
+    --bg-primary: #446724;
+    --text-primary: #f0f0f0;
+    --text-muted: #b0b0b0;
+    --border-color: #446724;
+    --radio-bg: #446724;
+    --radio-checked: #446724;   /* ваш зелёный */
+    --option-bg: #446724;
+    --option-hover-bg: #446724;
+}
+
+/* ========== ТЕМА СВЕТЛАЯ (по умолчанию) ========== */
+[data-theme="light"] {
+    --bg-primary: #ffffff;
+    --text-primary: #1e2b3c;
+    --text-muted: #6c757d;
+    --border-color: #dee2e6;
+    --radio-bg: #f8f9fa;
+    --radio-checked: #244467;   /* ваш тёмно-синий */
+    --option-bg: #ffffff;
+    --option-hover-bg: #f1f3f5;
+}
+/* Стилизация вариантов ответов */
+.answer-option,
+.answer-item {
+    background-color: var(--option-bg);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    transition: background-color 0.2s;
+}
+
+.answer-option:hover,
+.answer-item:hover {
+    background-color: var(--option-hover-bg);
+}
+
+/* Переопределяем цвет текста внутри label */
+.answer-option label,
+.answer-item label {
+    color: var(--text-primary);
+}
+
+/* Кастомный вид радио-кнопок (необязательно, но красиво) */
+.answer-option input[type="radio"],
+.answer-item input[type="radio"] {
+    accent-color: var(--radio-checked);
+    margin-right: 8px;
+    transform: scale(1.2);
+}
+
+/* При наведении на label весь блок подсвечивается */
+.answer-option label:hover {
+    cursor: pointer;
+}
+/* ========== ТЕМА: СВЕТЛАЯ (по умолчанию) ========== */
+[data-theme="light"] {
+    --bg-primary: #ffffff;
+    --text-primary: #1e2b3c;
+    --text-muted: #6c757d;
+    --border-color: #dee2e6;
+    --radio-accent: #244467;      /* тёмно-синий */
+    --option-bg: #ffffff;
+    --option-hover-bg: #f1f3f5;
+}
+
+/* ========== ТЕМА: ТЁМНАЯ ========== */
+[data-theme="dark"] {
+    --bg-primary: #4a4e3d;
+    --text-primary: #f0f0f0;
+    --text-muted: #b0b0b0;
+    --border-color: #33372e;
+    --radio-accent: #33372e;      /* зелёный */
+    --option-bg: #33372e;
+    --option-hover-bg: #33372e;
+}
+
+/* ========== ПРИМЕНЕНИЕ К ЭЛЕМЕНТАМ ВИКТОРИНЫ ========== */
+/* Варианты ответов */
+.answer-option,
+.answer-item {
+    background-color: var(--option-bg);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    transition: background-color 0.2s;
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin-bottom: 8px;
+}
+
+.answer-option:hover,
+.answer-item:hover {
+    background-color: var(--option-hover-bg);
+}
+
+/* Текст внутри label */
+.answer-option label,
+.answer-item label {
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    margin: 0;
+}
+
+/* Радио-кнопки: основной цвет */
+.answer-option input[type="radio"],
+.answer-item input[type="radio"] {
+    accent-color: var(--radio-accent);
+    margin-right: 10px;
+    transform: scale(1.3);
+    cursor: pointer;
+}
+
+/* Для открытых вопросов (поля ввода) */
+.open-answer-input {
+    background-color: var(--option-bg);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+}
+
+/* Кнопки внутри вариантов (если есть) */
+.answer-item .btn-remove-answer {
+    background-color: transparent;
+    color: var(--text-muted);
+}
+
+/* ========== ОБЩИЕ СТИЛИ ТЕКСТА (пригодятся для других страниц) ========== */
+body {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+}
+
+.card {
+    background-color: var(--option-bg);
+    border-color: var(--border-color);
+}
+
+.text-muted {
+    color: var(--text-muted) !important;
+}

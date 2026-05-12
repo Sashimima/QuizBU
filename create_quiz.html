@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>📝 Создать викторину — QuizBU</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="d-flex flex-column min-vh-100">
+    <!-- Навигация -->
+    <nav class="navbar navbar-expand-lg shadow-sm">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="/">🎯 QuizBU</a>
+            <div class="d-flex align-items-center gap-2">
+                <button id="themeToggle" class="theme-toggle" title="Сменить тему">🌙</button>
+                <a href="/profile" class="btn btn-outline-light btn-sm">👤 Кабинет</a>
+                <a href="/create" class="btn btn-create btn-sm">➕ Создать викторину</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container py-4 flex-grow-1">
+        <h1>📝 Создание новой викторины</h1>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+              </div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
+        <!-- ВАЖНО: form отправляется обычным POST, а не через JS -->
+        <form method="POST" action="/create" id="quiz-form">
+            <div class="mb-3">
+                <label for="quiz-title" class="form-label">Название викторины</label>
+                <input type="text" class="form-control" id="quiz-title" name="title" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="quiz-description" class="form-label">Описание (необязательно)</label>
+                <textarea class="form-control" id="quiz-description" name="description" rows="3"></textarea>
+            </div>
+
+            <!-- Чекбокс приватности -->
+            <div class="mb-3 form-check">
+                <input type="checkbox" class="form-check-input" id="is_private" name="is_private">
+                <label class="form-check-label" for="is_private">🔒 Приватная викторина (доступ только у вас)</label>
+            </div>
+
+            <div id="questions-container">
+                <h3>❓ Вопросы</h3>
+                <!-- Вопросы будут добавляться динамически -->
+            </div>
+
+            <div class="form-actions mt-4">
+                <button type="button" id="add-question" class="btn btn-secondary">➕ Добавить вопрос</button>
+                <button type="submit" class="btn btn-primary">💾 Сохранить викторину</button>
+            </div>
+            
+            <div class="nav-back mt-3">
+                <a href="{{ url_for('index') }}">← Назад к списку викторин</a>
+            </div>
+        </form>
+    </main>
+
+    <footer class="text-center py-3 text-muted border-top mt-auto">
+        <small>© 2026 QuizBU | Курсовой проект • Анастасия</small>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Скрипт темы -->
+    <script>
+    (function() {
+        const saved = localStorage.getItem('quiz-theme') || 'light';
+        document.documentElement.setAttribute('data-theme', saved);
+        function updateIcons(theme) {
+            document.querySelectorAll('.theme-toggle, #themeToggle').forEach(btn => {
+                btn.textContent = theme === 'dark' ? '☀️' : '🌙';
+                btn.title = theme === 'dark' ? 'Светлая тема' : 'Тёмная тема';
+            });
+        }
+        updateIcons(saved);
+        document.querySelectorAll('.theme-toggle, #themeToggle').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                const current = localStorage.getItem('quiz-theme') || 'light';
+                const next = current === 'dark' ? 'light' : 'dark';
+                localStorage.setItem('quiz-theme', next);
+                document.documentElement.setAttribute('data-theme', next);
+                updateIcons(next);
+                fetch('/toggle_theme').catch(() => {});
+            });
+        });
+    })();
+    </script>
+
+    <!-- Скрипт динамических вопросов -->
+    <script>
+        let questionCount = 0;
+
+        function createQuestionTemplate(index) {
+            return `
+                <div class="question-block" data-question-index="${index}">
+                    <div class="mb-3">
+                        <label>Вопрос ${index + 1}:</label>
+                        <input type="text" class="form-control question-text" name="question_text" required>
+                    </div>
+                    <div class="form-check">
+                        <input type="checkbox" class="form-check-input is-multiple" name="is_multiple_${index}" id="is_multiple_${index}">
+                        <label class="form-check-label" for="is_multiple_${index}">Несколько правильных ответов</label>
+                    </div>
+                    <div class="form-check">
+                        <input type="checkbox" class="form-check-input is-open" name="is_open_${index}" id="is_open_${index}">
+                        <label class="form-check-label" for="is_open_${index}">Открытый вопрос (текстовый ответ)</label>
+                    </div>
+                    <div class="answers-container mt-2">
+                        <label>Варианты ответов (минимум 2, если не открытый):</label>
+                        <div class="answer-item input-group mb-2">
+                            <input type="text" class="form-control answer-text" name="option_${index}" placeholder="Текст ответа">
+                            <label class="input-group-text"><input type="radio" name="correct_${index}" value="0" checked> Правильный</label>
+                            <button type="button" class="btn btn-outline-danger btn-remove-answer" style="display:none;">Удалить</button>
+                        </div>
+                        <div class="answer-item input-group mb-2">
+                            <input type="text" class="form-control answer-text" name="option_${index}" placeholder="Текст ответа">
+                            <label class="input-group-text"><input type="radio" name="correct_${index}" value="1"> Правильный</label>
+                            <button type="button" class="btn btn-outline-danger btn-remove-answer" style="display:none;">Удалить</button>
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-sm btn-outline-success btn-add-answer">➕ Добавить ответ</button>
+                    <button type="button" class="btn btn-sm btn-outline-danger btn-remove-question">❌ Удалить вопрос</button>
+                </div>
+            `;
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const container = document.getElementById('questions-container');
+            container.insertAdjacentHTML('beforeend', createQuestionTemplate(questionCount));
+            questionCount++;
+
+            document.getElementById('add-question').addEventListener('click', function() {
+                container.insertAdjacentHTML('beforeend', createQuestionTemplate(questionCount));
+                questionCount++;
+            });
+
+            container.addEventListener('click', function(e) {
+                if (e.target.classList.contains('btn-add-answer')) {
+                    const questionBlock = e.target.closest('.question-block');
+                    const answersContainer = questionBlock.querySelector('.answers-container');
+                    const questionIndex = questionBlock.dataset.questionIndex;
+                    const answerCount = answersContainer.querySelectorAll('.answer-item').length;
+                    const newAnswer = document.createElement('div');
+                    newAnswer.className = 'answer-item input-group mb-2';
+                    newAnswer.innerHTML = `
+                        <input type="text" class="form-control answer-text" name="option_${questionIndex}" placeholder="Текст ответа">
+                        <label class="input-group-text"><input type="radio" name="correct_${questionIndex}" value="${answerCount}"> Правильный</label>
+                        <button type="button" class="btn btn-outline-danger btn-remove-answer">Удалить</button>
+                    `;
+                    answersContainer.appendChild(newAnswer);
+                }
+
+                if (e.target.classList.contains('btn-remove-answer')) {
+                    const answerItem = e.target.closest('.answer-item');
+                    const answersContainer = answerItem.parentNode;
+                    if (answersContainer.children.length > 2) {
+                        answerItem.remove();
+                    } else {
+                        alert('Должно быть минимум 2 варианта ответа');
+                    }
+                }
+
+                if (e.target.classList.contains('btn-remove-question')) {
+                    const questionBlock = e.target.closest('.question-block');
+                    if (container.children.length > 1) {
+                        questionBlock.remove();
+                        updateQuestionIndices();
+                    } else {
+                        alert('Должен быть хотя бы один вопрос');
+                    }
+                }
+            });
+
+            // Функция обновления индексов при удалении вопросов
+            function updateQuestionIndices() {
+                const blocks = document.querySelectorAll('.question-block');
+                blocks.forEach((block, idx) => {
+                    block.dataset.questionIndex = idx;
+                    const label = block.querySelector('label');
+                    if (label) label.textContent = `Вопрос ${idx + 1}:`;
+                    // Обновить имена radio для правильных ответов
+                    const radios = block.querySelectorAll('input[type="radio"]');
+                    radios.forEach(radio => {
+                        radio.name = `correct_${idx}`;
+                    });
+                    // Обновить имена текстовых полей вариантов ответов
+                    const optionInputs = block.querySelectorAll('.answer-text');
+                    optionInputs.forEach(input => {
+                        input.name = `option_${idx}`;
+                    });
+                    // Обновить имена чекбоксов (multiple, open)
+                    const isMultiple = block.querySelector('.is-multiple');
+                    const isOpen = block.querySelector('.is-open');
+                    if (isMultiple) {
+                        isMultiple.name = `is_multiple_${idx}`;
+                        isMultiple.id = `is_multiple_${idx}`;
+                        const lbl = isMultiple.nextElementSibling;
+                        if (lbl) lbl.setAttribute('for', `is_multiple_${idx}`);
+                    }
+                    if (isOpen) {
+                        isOpen.name = `is_open_${idx}`;
+                        isOpen.id = `is_open_${idx}`;
+                        const lbl = isOpen.nextElementSibling;
+                        if (lbl) lbl.setAttribute('for', `is_open_${idx}`);
+                    }
+                });
+                questionCount = blocks.length;
+            }
+        });
+    </script>
+</body>
+</html>

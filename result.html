@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>📊 Результат викторины</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <nav class="navbar shadow-sm">
+        <div class="container d-flex justify-content-between align-items-center">
+            <a class="navbar-brand fw-bold" href="/">🎯 QuizBU</a>
+            <div class="d-flex align-items-center gap-2">
+                <button id="themeToggle" class="theme-toggle" title="Сменить тему">🌙</button>
+                <a href="/" class="btn btn-outline-secondary btn-sm">🏠 На главную</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container py-4" style="max-width: 700px;">
+        <h2 class="mb-4">📊 {{ quiz.title }}</h2>
+
+        <div class="card p-4 mb-4 text-center">
+            <div class="fs-1 fw-bold">{{ result.score }} / {{ result.total }}</div>
+            <p class="text-muted">Правильных ответов: {{ (result.score / result.total * 100) | round(1) }}%</p>
+            <small class="text-muted">{{ result.date.strftime('%d.%m.%Y %H:%M') }}</small>
+        </div>
+
+        {% for detail in details %}
+        <div class="card mb-3">
+            <div class="card-header">
+                <strong>{{ loop.index }}. {{ detail.question.text }}</strong>
+            </div>
+            <div class="card-body">
+                {% if detail.is_open %}
+                    <p>✍️ Ваш ответ: <em>"{{ detail.user_answer }}"</em></p>
+                    <h6>📈 Частота ответов среди игроков:</h6>
+                    {% if detail.freq %}
+                        <ul>
+                            {% for f in detail.freq %}
+                                <li>"{{ f.answer }}" — {{ f.count }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p class="text-muted">Пока никто не ответил</p>
+                    {% endif %}
+                {% else %}
+                    <p>✅ Правильные ответы:
+                        {% for opt in detail.options %}
+                            {% if opt.id in detail.correct %}
+                                <span class="badge bg-success">{{ opt.text }}</span>
+                            {% endif %}
+                        {% endfor %}
+                    </p>
+                    <p>Вы выбрали:
+                        {% for opt in detail.options %}
+                            {% if opt.id in detail.user_answer %}
+                                <span class="badge {% if opt.id in detail.correct %}bg-success{% else %}bg-danger{% endif %}">{{ opt.text }}</span>
+                            {% endif %}
+                        {% endfor %}
+                    </p>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+
+        <div class="text-center mt-4">
+            <a href="/" class="btn btn-primary">🔙 К списку викторин</a>
+            <a href="/profile" class="btn btn-outline-secondary">👤 Мой профиль</a>
+        </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Тема
+        (function(){
+            const saved = localStorage.getItem('quiz-theme') || 'light';
+            document.documentElement.setAttribute('data-theme', saved);
+            const btn = document.getElementById('themeToggle');
+            if(btn) {
+                btn.textContent = saved === 'dark' ? '☀️' : '🌙';
+                btn.onclick = () => {
+                    const next = saved === 'dark' ? 'light' : 'dark';
+                    localStorage.setItem('quiz-theme', next);
+                    document.documentElement.setAttribute('data-theme', next);
+                    btn.textContent = next === 'dark' ? '☀️' : '🌙';
+                    fetch('/toggle_theme').catch(()=>{});
+                };
+            }
+        })();
+    </script>
+</body>
+</html>
